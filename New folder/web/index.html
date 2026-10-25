@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEAM College Navigator | Decision Support System</title>
+    <meta name="description"
+        content="AI & Data-driven Decision Support System for Kerala KEAM Engineering Admission Planning, Cutoff Analysis, and College Recommendation.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Animated Gradient Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Header / Navbar -->
+    <header class="app-header">
+        <div class="container nav-content">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">KEAM College Navigator</h1>
+                    <span class="brand-sub">Decision Support System for Admission Planning</span>
+                </div>
+            </div>
+
+            <nav class="nav-tabs" id="navTabs">
+                <button class="nav-btn active" data-tab="recommendationTab">
+                    <span class="nav-icon">🎯</span> Predictor
+                </button>
+                <button class="nav-btn" data-tab="cutoffsTab">
+                    <span class="nav-icon">📊</span> 2026 Cutoff Table
+                </button>
+                <button class="nav-btn" data-tab="optionListTab">
+                    <span class="nav-icon">📋</span> My Option List <span class="badge-count"
+                        id="optionListCount">0</span>
+                </button>
+                <button class="nav-btn" data-tab="aboutTab">
+                    <span class="nav-icon">ℹ️</span> Project Info
+                </button>
+            </nav>
+
+
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container main-content">
+
+        <!-- ==================== TAB 1: PREDICTOR & NAVIGATOR ==================== -->
+        <section id="recommendationTab" class="tab-pane active">
+            <!-- Search & Filter Card -->
+            <div class="glass-card search-card">
+                <div class="card-header">
+                    <h2>🎯 Personalized College Predictor</h2>
+                    <p class="section-desc">Enter your KEAM entrance rank and reservation category to generate
+                        predictive, probability-sorted college options.</p>
+                </div>
+
+                <form id="predictionForm" class="prediction-grid" onsubmit="event.preventDefault(); runPrediction();">
+                    <!-- Rank Input -->
+                    <div class="form-group">
+                        <label for="rankInput">Your KEAM Rank <span class="req">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="icon">🏆</span>
+                            <input type="number" id="rankInput" min="1" max="100000" placeholder="e.g. 12500"
+                                value="12500" required>
+                        </div>
+                        <div class="rank-presets">
+                            <button type="button" class="preset-btn" onclick="setRank(2500)">2,500</button>
+                            <button type="button" class="preset-btn" onclick="setRank(7500)">7,500</button>
+                            <button type="button" class="preset-btn" onclick="setRank(15000)">15,000</button>
+                            <button type="button" class="preset-btn" onclick="setRank(28000)">28,000</button>
+                            <button type="button" class="preset-btn" onclick="setRank(45000)">45,000</button>
+                        </div>
+                    </div>
+
+                    <!-- Category Selector -->
+                    <div class="form-group">
+                        <label for="categorySelect">Reservation Category <span class="req">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="icon">🏷️</span>
+                            <select id="categorySelect">
+                                <option value="SM" selected>SM - State Merit (General)</option>
+                                <option value="EZ">EZ - Ezhava</option>
+                                <option value="MU">MU - Muslim</option>
+                                <option value="LA">LA - Latin Catholic & Anglo Indian</option>
+                                <option value="DV">DV - Dheevara</option>
+                                <option value="VK">VK - Viswakarma</option>
+                                <option value="BH">BH - Other Backward Hindu</option>
+                                <option value="BX">BX - Backward Christian</option>
+                                <option value="KN">KN - Kudumbi</option>
+                                <option value="KU">KU - Kusavan</option>
+                                <option value="SC">SC - Scheduled Caste</option>
+                                <option value="ST">ST - Scheduled Tribe</option>
+                                <option value="EW">EW - Economically Weaker Section</option>
+                                <option value="FW">FW - AICTE Fee Waiver Scheme</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Home District (Nearby Colleges Feature) -->
+                    <div class="form-group">
+                        <label for="districtSelect">Home Location (For Nearby Colleges) <span
+                                class="req">*</span></label>
+                        <div class="input-with-icon">
+                            <span class="icon">📍</span>
+                            <select id="districtSelect">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <label class="checkbox-label mt-2">
+                            <input type="checkbox" id="nearbyOnlyCheckbox">
+                            <span>Prioritize Nearby Colleges (Home & Adjacent Districts only)</span>
+                        </label>
+                    </div>
+
+                    <!-- Course / Branch Filter -->
+                    <div class="form-group">
+                        <label for="courseFilter">Preferred Branch / Discipline</label>
+                        <div class="input-with-icon">
+                            <span class="icon">💻</span>
+                            <select id="courseFilter">
+                                <option value="ALL">All Engineering Branches</option>
+                                <option value="Computer Science and Engineering">Computer Science & Engineering</option>
+                                <option value="Artificial Intelligence and Machine Learning">Artificial Intelligence &
+                                    ML</option>
+                                <option value="Artificial Intelligence and Data Science">AI & Data Science</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                                <option value="Electronics and Communication Engineering">Electronics & Communication
+                                </option>
+                                <option value="Electrical and Electronics Engineering">Electrical & Electronics</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                                <option value="Chemical Engineering">Chemical Engineering</option>
+                                <option value="Robotics">Robotics & Automation</option>
+                                <option value="Food Technology">Food Technology</option>
+                                <option value="Bio Technology">Bio Technology</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- College Type Checkboxes -->
+                    <div class="form-group">
+                        <label>College Types</label>
+                        <div class="pill-checkboxes">
+                            <label class="pill-check">
+                                <input type="checkbox" name="collegeType" value="G" checked>
+                                <span>🏛️ Govt / Aided</span>
+                            </label>
+                            <label class="pill-check">
+                                <input type="checkbox" name="collegeType" value="N" checked>
+                                <span>🏢 Govt-Controlled (CAPE/IHRD)</span>
+                            </label>
+                            <label class="pill-check">
+                                <input type="checkbox" name="collegeType" value="S" checked>
+                                <span>🏫 Private Self-Financing</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Sort Criteria -->
+                    <div class="form-group">
+                        <label for="sortSelect">Sort Results By</label>
+                        <div class="input-with-icon">
+                            <span class="icon">⚡</span>
+                            <select id="sortSelect">
+                                <option value="PROBABILITY" selected>Admission Probability (Highest First)</option>
+                                <option value="DISTANCE">Distance / Nearby Proximity</option>
+                                <option value="CUTOFF_ASC">Competitive Cutoff (Lowest Rank First)</option>
+                                <option value="CUTOFF_DESC">Cutoff Rank (Highest First)</option>
+                                <option value="RATING">College Reputation & Rating</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="predictBtn">
+                            <span>🔍 Find My Best College Matches</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Probability Metrics Summary -->
+            <div class="summary-section" id="summarySection">
+                <div class="metric-card card-safe">
+                    <div class="metric-icon">🛡️</div>
+                    <div class="metric-details">
+                        <div class="metric-value" id="safeCount">0</div>
+                        <div class="metric-label">Safe Choices (High Likelihood &gt;85%)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card card-target">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-details">
+                        <div class="metric-value" id="targetCount">0</div>
+                        <div class="metric-label">Target Choices (Realistic 50% - 84%)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card card-reach">
+                    <div class="metric-icon">🚀</div>
+                    <div class="metric-details">
+                        <div class="metric-value" id="reachCount">0</div>
+                        <div class="metric-label">Reach Choices (Aspirational 15% - 49%)</div>
+                    </div>
+                </div>
+
+                <div class="metric-card card-total">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-details">
+                        <div class="metric-value" id="totalEligible">0</div>
+                        <div class="metric-label">Total Valid Options Found</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-header">
+                <div>
+                    <h3 id="resultsTitle">Recommended Colleges</h3>
+                    <p class="results-sub" id="resultsSub">Calculated using KEAM 2026 Round 2 cutoff algorithms</p>
+                </div>
+                <div class="results-actions">
+                    <div class="filter-pills" id="statusFilterPills">
+                        <button class="pill-btn active" data-filter="ALL" onclick="filterStatus('ALL')">All</button>
+                        <button class="pill-btn text-safe" data-filter="SAFE"
+                            onclick="filterStatus('SAFE')">Safe</button>
+                        <button class="pill-btn text-target" data-filter="TARGET"
+                            onclick="filterStatus('TARGET')">Moderate</button>
+                        <button class="pill-btn text-reach" data-filter="REACH"
+                            onclick="filterStatus('REACH')">Hard</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="college-cards-grid" id="recommendationCards">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: CUTOFF EXPLORER ==================== -->
+        <section id="cutoffsTab" class="tab-pane">
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>📊 Official KEAM 2026 Phase 2 Last Rank Cutoffs</h2>
+                    <p class="section-desc">Search and inspect all official last ranks published by CEE Kerala for every
+                        college and engineering course.</p>
+                </div>
+
+                <div class="table-filters">
+                    <div class="search-box">
+                        <input type="text" id="cutoffSearchInput"
+                            placeholder="Search by college name, code, or course..." oninput="filterCutoffTable()">
+                    </div>
+                    <div class="filter-select">
+                        <select id="cutoffCollegeFilter" onchange="filterCutoffTable()">
+                            <option value="ALL">All Colleges</option>
+                        </select>
+                    </div>
+                    <div class="filter-select">
+                        <select id="cutoffCourseFilter" onchange="filterCutoffTable()">
+                            <option value="ALL">All Courses</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="cutoffMasterTable">
+                        <thead>
+                            <tr>
+                                <th>College</th>
+                                <th>Type</th>
+                                <th>Course / Branch</th>
+                                <th>SM (Gen)</th>
+                                <th>EZ</th>
+                                <th>MU</th>
+                                <th>LA</th>
+                                <th>DV</th>
+                                <th>VK</th>
+                                <th>BH</th>
+                                <th>SC</th>
+                                <th>ST</th>
+                                <th>EW</th>
+                                <th>FW / Others</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cutoffTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: OPTION LIST BUILDER ==================== -->
+        <section id="optionListTab" class="tab-pane">
+            <div class="glass-card">
+                <div class="card-header flex-between">
+                    <div>
+                        <h2>📋 My Option Entry Strategy Sheet</h2>
+                        <p class="section-desc">Plan and prioritize your choices before entering them in the official
+                            KEAM counselling portal.</p>
+                    </div>
+                    <div class="header-buttons">
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ Print / Export PDF</button>
+                        <button class="btn btn-danger-outline" onclick="clearOptionList()">🗑️ Clear All</button>
+                    </div>
+                </div>
+
+                <div id="optionListEmpty" class="empty-state">
+                    <div class="empty-icon">📝</div>
+                    <h3>Your Option List is Empty</h3>
+                    <p>Go to the Predictor tab and click <strong>"+ Add to Option List"</strong> on any college to build
+                        your personalized choice hierarchy.</p>
+                    <button class="btn btn-primary" onclick="switchTab('recommendationTab')">Browse
+                        Recommendations</button>
+                </div>
+
+                <div id="optionListContent" style="display: none;">
+                    <div class="option-list-tips">
+                        <span class="tip-icon">💡</span>
+                        <span><strong>Counselling Tip:</strong> Arrange your options with Reach (aspirational) at top,
+                            followed by realistic Targets, and reliable Safes at the bottom.</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table option-table">
+                            <thead>
+                                <tr>
+                                    <th width="80">Priority</th>
+                                    <th>College Name</th>
+                                    <th>Course</th>
+                                    <th>Category Cutoff</th>
+                                    <th>Status</th>
+                                    <th>District</th>
+                                    <th width="120">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="optionTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: ABOUT / PROJECT INFO ==================== -->
+        <section id="aboutTab" class="tab-pane">
+            <div class="glass-card about-card">
+                <div class="about-hero">
+
+                    <h2>KEAM College Navigator</h2>
+                    <p class="about-sub">A Decision Support System for KEAM Admission Planning</p>
+                </div>
+
+                <div class="team-box">
+                    <h3>👥 Project Team </h3>
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <div class="avatar">VA</div>
+                            <div class="member-info">
+                                <strong>Visakh A</strong>
+                            </div>
+                        </div>
+                        <div class="team-member">
+                            <div class="avatar">RU</div>
+                            <div class="member-info">
+                                <strong>Rohan U</strong>
+                            </div>
+                        </div>
+                        <div class="team-member">
+                            <div class="avatar">SP</div>
+                            <div class="member-info">
+                                <strong>Sabarinath P.R</strong>
+                            </div>
+                        </div>
+                        <div class="team-member">
+                            <div class="avatar">SN</div>
+                            <div class="member-info">
+                                <strong>Sahil Nejeeb</strong>
+                            </div>
+                        </div>
+                        <div class="team-member">
+                            <div class="avatar">JJ</div>
+                            <div class="member-info">
+                                <strong>Justin Mathew James</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-details-grid">
+                    <div class="about-feature-card">
+                        <h4>⚙️ Methodology & Architecture</h4>
+                        <ul>
+                            <li><strong>Data Extraction:</strong> CEE Kerala KEAM 2026 Phase 2 Allotment Cutoff ranks
+                                across 54+ pages.</li>
+                            <li><strong>Java Backend:</strong> Core Java OOP models, multi-criteria filtering, and
+                                RESTful API endpoints.</li>
+                            <li><strong>Prediction Engine:</strong> Probability scoring algorithm categorizing colleges
+                                into Safe, Target, and Reach.</li>
+                            <li><strong>Nearby Colleges:</strong> Graph-based distance & district adjacency model across
+                                Kerala's 14 districts.</li>
+                        </ul>
+                    </div>
+
+                    <div class="about-feature-card">
+                        <h4>📚 References</h4>
+                        <ul>
+                            <li>Commissioner for Entrance Examinations, Kerala (CEE) — cee.kerala.gov.in</li>
+                            <li>KEAM Allotment & Last Rank Table 2026</li>
+                            <li>Oracle Java 27 Standard Library Documentation</li>
+                            <li>Data-Driven College Recommendation Systems — IEEE / IJERT</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Compare Modal -->
+    <div class="modal" id="compareModal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h3>🔍 College Comparison</h3>
+                <button class="close-btn" onclick="closeCompareModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="compareModalBody">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+</body>
+
+</html>
